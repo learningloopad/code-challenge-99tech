@@ -242,42 +242,46 @@ export default function SwapForm() {
           </button>
         </div>
       ) : (
-        <div className="relative mb-2 flex flex-col gap-1">
-          <CurrencyInput
-            amount={payAmount}
-            currency={payCurrency}
-            onAmountChange={handlePayAmountChange}
-            onCurrencyChange={handlePayCurrencyChange}
-            options={currencies}
-            usdValue={payUsdValue}
-          />
+        <div className="mb-2 flex flex-col">
+          <div className="relative">
+            <CurrencyInput
+              amount={payAmount}
+              currency={payCurrency}
+              onAmountChange={handlePayAmountChange}
+              onCurrencyChange={handlePayCurrencyChange}
+              options={currencies}
+              usdValue={payUsdValue}
+            />
 
-          <div className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
-            <button
-              type="button"
-              className="flex size-10 items-center justify-center rounded-full border-4 border-[#131722] bg-[#1a1e2e] text-[#f3f4f6] transition-colors hover:bg-[#2a3143] hover:text-[#fcee0a]"
-              onClick={handleSwap}
-            >
-              <span
-                className="transition-transform duration-300 ease-in-out"
-                style={{
-                  transform: `rotate(${swapButtonRotate ? 180 : 0}deg)`,
-                }}
+            <div className="absolute bottom-0 left-1/2 z-10 -translate-x-1/2 translate-y-1/2">
+              <button
+                type="button"
+                className="flex size-10 items-center justify-center rounded-full border-4 border-[#131722] bg-[#1a1e2e] text-[#f3f4f6] transition-colors hover:bg-[#2a3143] hover:text-[#fcee0a]"
+                onClick={handleSwap}
               >
-                <ArrowDownUp size={20} />
-              </span>
-            </button>
+                <span
+                  className="transition-transform duration-300 ease-in-out"
+                  style={{
+                    transform: `rotate(${swapButtonRotate ? 180 : 0}deg)`,
+                  }}
+                >
+                  <ArrowDownUp size={20} />
+                </span>
+              </button>
+            </div>
           </div>
 
-          <CurrencyInput
-            amount={receiveAmount}
-            currency={receiveCurrency}
-            onAmountChange={() => {}}
-            onCurrencyChange={handleReceiveCurrencyChange}
-            options={currencies}
-            isAmountLoading={isQuoteRefreshing || pricesFetching}
-            readOnly
-          />
+          <div className="mt-1">
+            <CurrencyInput
+              amount={receiveAmount}
+              currency={receiveCurrency}
+              onAmountChange={() => {}}
+              onCurrencyChange={handleReceiveCurrencyChange}
+              options={currencies}
+              isAmountLoading={isQuoteRefreshing || pricesFetching}
+              readOnly
+            />
+          </div>
         </div>
       )}
 
