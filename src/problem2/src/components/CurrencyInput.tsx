@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { useFetchIcons } from '../modules/swap-form/api/queries';
+import { Skeleton } from './ui/skeleton';
 
 interface CurrencyInputProps {
   amount: string;
@@ -6,7 +9,7 @@ interface CurrencyInputProps {
   onAmountChange: (amount: string) => void;
   onCurrencyChange: (currency: string) => void;
   options: string[];
-  readOnlyAmount?: boolean;
+  readOnly?: boolean;
 }
 
 export default function CurrencyInput({
@@ -15,18 +18,40 @@ export default function CurrencyInput({
   onAmountChange,
   onCurrencyChange,
   options,
-  readOnlyAmount = false
+  readOnly = false
 }: CurrencyInputProps) {
-  // Use user-provided repo for token icons
-  const getTokenIconUrl = (symbol: string) => `https://raw.githubusercontent.com/Switcheo/token-icons/main/tokens/${symbol}.svg`;
+  const [isAmountFocused, setIsAmountFocused] = useState(false);
+  const { data: iconSvg, isLoading: isIconLoading } = useFetchIcons(currency);
+  const iconSrc = iconSvg ? `data:image/svg+xml;utf8,${encodeURIComponent(iconSvg)}` : '';
+
+  const formatAmountForDisplay = (rawAmount: string) => {
+    if (!rawAmount) {
+      return '';
+    }
+
+    const parsedAmount = Number(rawAmount);
+    if (!Number.isFinite(parsedAmount)) {
+      return rawAmount;
+    }
+
+    return new Intl.NumberFormat('en-US', {
+      maximumFractionDigits: 6,
+    }).format(parsedAmount);
+  };
+
+  const displayAmount = readOnly || !isAmountFocused
+    ? formatAmountForDisplay(amount)
+    : amount;
 
   return (
     <div className="relative rounded-2xl border border-transparent bg-[#1a1e2e] px-5 py-4 transition-colors focus-within:border-[#3b4255] focus-within:bg-[#1e2335]">
       <div className="flex items-center justify-between gap-4">
         <div className="relative flex min-w-max cursor-pointer items-center rounded-full bg-[#2a3143] px-3 py-1.5 pl-2 transition-colors hover:bg-[#343c51]">
           <div className="mr-2 flex size-6 items-center justify-center overflow-hidden rounded-full bg-[#4b5563]">
-            {currency ? (
-              <img src={getTokenIconUrl(currency)} alt={currency} onError={(e) => (e.currentTarget.style.display = 'none')} />
+            {currency && isIconLoading ? (
+              <Skeleton className="size-full rounded-full bg-[#6b7280]" />
+            ) : currency && iconSrc ? (
+              <img src={iconSrc} alt={currency} />
             ) : (
               <div className="size-full rounded-full bg-[#4b5563]" />
             )}
@@ -47,14 +72,30 @@ export default function CurrencyInput({
           </div>
         </div>
         <input 
-          type="number"
+          type="text"
+          inputMode="decimal"
           className="w-full appearance-none bg-transparent p-0 text-right text-[28px] font-medium text-white placeholder:text-[#4b5563] focus:outline-none read-only:text-[#c7cedd] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           placeholder="0"
-          value={amount}
-          min="0"
-          step="any"
-          readOnly={readOnlyAmount}
-          onChange={(e) => onAmountChange(e.target.value)}
+          value={displayAmount}
+          readOnly={readOnly}
+          onFocus={() => {
+            if (!readOnly) {
+              setIsAmountFocused(true);
+            }
+          }}
+          onBlur={() => setIsAmountFocused(false)}
+          onKeyDown={(e) => {
+            if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === ',') {
+              e.preventDefault();
+            }
+          }}
+          onChange={(e) => {
+            if (readOnly) {
+              return;
+            }
+
+            onAmountChange(e.target.value.replace(/,/g, ''));
+          }}
         />
       </div>
     </div>

@@ -13,5 +13,6 @@ export const useFetchIcons = (currency: string) =>
 	useQuery({
 		queryKey: ["icons", currency],
 		queryFn: () => currencyApi.fetchIcons(currency),
+		enabled: Boolean(currency),
 		staleTime: 60_000,
 	})

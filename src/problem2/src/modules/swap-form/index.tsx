@@ -4,17 +4,75 @@ import CurrencyInput from '../../components/CurrencyInput';
 import { Skeleton } from '../../components/ui/skeleton';
 import { useFetchPrices } from './api/queries';
 
+const MAX_INPUT_AMOUNT = 1_000_000_000_000;
+const MAX_INPUT_DECIMALS = 6;
+const AMOUNT_FORMAT = /^\d*\.?\d*$/;
+
 export default function SwapForm() {
   const [payAmount, setPayAmount] = useState('');
   const [payCurrency, setPayCurrency] = useState('USDC');
   const [receiveCurrency, setReceiveCurrency] = useState('SWTH');
+  const [swapButtonRotate, setSwapButtonRotate] = useState(false);
 
   const { data, isLoading: pricesLoading } = useFetchPrices();
   const currencies = data?.currencies ?? [];
+  const prices = data?.prices ?? {};
+
+  const handlePayAmountChange = (nextAmount: string) => {
+    if (nextAmount === '') {
+      setPayAmount('');
+      return;
+    }
+
+    if (!AMOUNT_FORMAT.test(nextAmount)) {
+      return;
+    }
+
+    const [, decimalPart = ''] = nextAmount.split('.');
+    if (decimalPart.length > MAX_INPUT_DECIMALS) {
+      return;
+    }
+
+    const parsedAmount = Number(nextAmount);
+    if (!Number.isFinite(parsedAmount)) {
+      return;
+    }
+
+    if (parsedAmount > MAX_INPUT_AMOUNT) {
+      setPayAmount(String(MAX_INPUT_AMOUNT));
+      return;
+    }
+
+    setPayAmount(nextAmount);
+  };
+
+  const receiveAmount = (() => {
+    const parsedPayAmount = Number(payAmount);
+    const payPrice = prices[payCurrency];
+    const receivePrice = prices[receiveCurrency];
+
+    if (
+      !Number.isFinite(parsedPayAmount) ||
+      parsedPayAmount <= 0 ||
+      !Number.isFinite(payPrice) ||
+      !Number.isFinite(receivePrice) ||
+      receivePrice <= 0
+    ) {
+      return '';
+    }
+
+    const calculatedAmount = (parsedPayAmount * payPrice) / receivePrice;
+    return Number.isFinite(calculatedAmount)
+      ? calculatedAmount.toFixed(6).replace(/\.?0+$/, '')
+      : '';
+  })();
 
   const handleSwap = () => {
     setPayCurrency(receiveCurrency);
     setReceiveCurrency(payCurrency);
+    setPayAmount('');
+    setSwapButtonRotate((prev) => !prev);
+
   };
 
   return (
@@ -34,7 +92,7 @@ export default function SwapForm() {
           <CurrencyInput 
             amount={payAmount}
             currency={payCurrency}
-            onAmountChange={setPayAmount}
+            onAmountChange={handlePayAmountChange}
             onCurrencyChange={setPayCurrency}
             options={currencies}
           />
@@ -45,17 +103,22 @@ export default function SwapForm() {
               className="flex size-10 items-center justify-center rounded-full border-4 border-[#131722] bg-[#1a1e2e] text-[#f3f4f6] transition-colors hover:bg-[#2a3143] hover:text-[#fcee0a]"
               onClick={handleSwap}
             >
-              <ArrowDownUp size={20} />
+              <span
+                className="transition-transform duration-300 ease-in-out"
+                style={{ transform: `rotate(${swapButtonRotate ? 180 : 0}deg)` }}
+              >
+                <ArrowDownUp size={20} />
+              </span>
             </button>
           </div>
 
           <CurrencyInput 
-            amount=""
+            amount={receiveAmount}
             currency={receiveCurrency}
             onAmountChange={() => {}}
             onCurrencyChange={setReceiveCurrency}
             options={currencies}
-            readOnlyAmount
+            readOnly
           />
         </div>
       )}
