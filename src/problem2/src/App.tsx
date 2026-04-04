@@ -2,7 +2,7 @@ import SwapForm from './modules/swap-form';
 
 function App() {
   return (
-    <div className="app-container">
+    <div className="w-full">
       <SwapForm />
     </div>
   )
