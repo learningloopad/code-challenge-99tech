@@ -100,7 +100,7 @@ export default function CurrencyInput({
                     <CommandItem
                       key={option}
                       value={option}
-                      data-checked={option === currency}
+                      data-checked={option === currency ? 'true' : undefined}
                       className="data-selected:bg-[#2a3143] data-selected:text-white text-[#f3f4f6]"
                       onSelect={(value) => {
                         onCurrencyChange(value);

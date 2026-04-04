@@ -201,7 +201,7 @@ export default function SwapForm() {
 
     swapActionTimeoutRef.current = window.setTimeout(() => {
       setSwapActionState('success');
-      setPayAmount('0');
+      setPayAmount('');
       setIsQuoteRefreshing(false);
       swapActionTimeoutRef.current = null;
     }, 1500);
