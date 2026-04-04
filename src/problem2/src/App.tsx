@@ -5,7 +5,7 @@ function App() {
     <div className="w-full">
       <SwapForm />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

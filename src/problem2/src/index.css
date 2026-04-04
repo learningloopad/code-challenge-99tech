@@ -1,6 +1,6 @@
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+@import '@fontsource-variable/geist';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -111,7 +111,7 @@
     color: var(--foreground);
   }
   #root {
-    @apply w-full max-w-[480px] p-6;
+    @apply w-full max-w-[560px] p-6;
   }
   html {
     font-family: var(--font-sans);

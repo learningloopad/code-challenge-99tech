@@ -1,3 +1,10 @@
+var normalize_positive_integer = function(n) {
+    if (!Number.isFinite(n)) {
+        return 0;
+    }
+    return Math.floor(n);
+};
+
 /**
  * Simple iterative loop
  * 
@@ -5,8 +12,13 @@
  * Space Complexity: O(1)
  */
 var sum_to_n_a = function(n) {
+    const limit = normalize_positive_integer(n);
+    if (limit <= 0) {
+        return 0;
+    }
+
     let sum = 0;
-    for (let i = 1; i <= n; i++) {
+    for (let i = 1; i <= limit; i++) {
         sum += i;
     }
     return sum;
@@ -19,7 +31,12 @@ var sum_to_n_a = function(n) {
  * Space Complexity: O(1)
  */
 var sum_to_n_b = function(n) {
-    return n * (n + 1) / 2;
+    const limit = normalize_positive_integer(n);
+    if (limit <= 0) {
+        return 0;
+    }
+
+    return limit * (limit + 1) / 2;
 };
 
 /**
@@ -29,8 +46,17 @@ var sum_to_n_b = function(n) {
  * Space Complexity: O(n)
  */
 var sum_to_n_c = function(n) {
-    if (n === 1) {
-        return 1;
+    const limit = normalize_positive_integer(n);
+    if (limit <= 0) {
+        return 0;
     }
-    return n + sum_to_n_c(n - 1);
+
+    var recursive_sum = function(value) {
+        if (value === 1) {
+            return 1;
+        }
+        return value + recursive_sum(value - 1);
+    };
+
+    return recursive_sum(limit);
 };
