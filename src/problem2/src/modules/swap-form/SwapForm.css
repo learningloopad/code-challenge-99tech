@@ -1,0 +1,124 @@
+.swap-form-container {
+  background-color: #131722;
+  border-radius: 24px;
+  padding: 12px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.swap-header {
+  padding: 12px 16px;
+}
+
+.swap-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #f3f4f6;
+}
+
+.swap-subtitle {
+  margin: 6px 0 0;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.inputs-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+}
+
+.swap-button-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+.swap-button {
+  background-color: #1a1e2e;
+  border: 4px solid #131722;
+  color: #f3f4f6;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.swap-button:hover {
+  background-color: #2a3143;
+  color: #fcee0a; /* Cyberpunk Yellow active color */
+}
+
+.swap-button.is-spinning svg {
+  animation: spin 0.3s ease-in-out;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(180deg);
+  }
+}
+
+.submit-button {
+  background-color: rgba(252, 238, 10, 0.1);
+  color: #fcee0a; /* Cyberpunk Yellow */
+  font-weight: 600;
+  font-size: 16px;
+  padding: 18px;
+  border-radius: 16px;
+  width: 100%;
+  transition: all 0.2s ease;
+  margin-top: 4px;
+}
+
+.submit-button:disabled {
+  cursor: not-allowed;
+  color: #9ca3af;
+  background-color: rgba(148, 163, 184, 0.14);
+  box-shadow: none;
+}
+
+.submit-button:hover {
+  background-color: #fcee0a;
+  color: #000;
+  box-shadow: 0 0 16px rgba(252, 238, 10, 0.4);
+}
+
+.submit-button:disabled:hover {
+  background-color: rgba(148, 163, 184, 0.14);
+  color: #9ca3af;
+}
+
+.quote-panel {
+  background: #151b29;
+  border: 1px solid #2a3143;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin: 6px 0 10px;
+}
+
+.hint-text {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.error-text {
+  margin: 0 0 10px;
+  color: #fda4af;
+  font-size: 13px;
+}
+
+.success-text {
+  margin: 10px 2px 2px;
+  color: #86efac;
+  font-size: 13px;
+}
