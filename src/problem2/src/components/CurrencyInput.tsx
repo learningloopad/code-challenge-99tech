@@ -60,12 +60,12 @@ export default function CurrencyInput({
   const showUsdValue = typeof usdValue === 'string';
 
   return (
-    <div className="relative rounded-2xl border border-transparent bg-[#1a1e2e] px-6 py-5 transition-colors focus-within:border-[#3b4255] focus-within:bg-[#1e2335]">
-      <div className="flex items-center justify-between gap-4">
+    <div className="relative rounded-2xl border border-transparent bg-[#1a1e2e] px-4 py-4 transition-colors focus-within:border-[#3b4255] focus-within:bg-[#1e2335] sm:px-6 sm:py-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <Popover open={isCurrencyOpen} onOpenChange={setIsCurrencyOpen}>
           <PopoverTrigger
             type="button"
-            className="flex min-w-max items-center rounded-full bg-[#2a3143] px-3 py-1.5 pl-2 transition-colors hover:bg-[#343c51]"
+            className="flex w-fit max-w-[calc(100vw-4rem)] items-center rounded-full bg-[#2a3143] px-2.5 py-1.5 pl-2 transition-colors hover:bg-[#343c51] sm:max-w-none sm:px-3"
           >
             <div className="mr-2 flex size-6 items-center justify-center overflow-hidden rounded-full bg-[#4b5563]">
               {currency && isIconLoading ? (
@@ -76,15 +76,15 @@ export default function CurrencyInput({
                 <div className="size-full rounded-full bg-[#4b5563]" />
               )}
             </div>
-            <div className="flex items-center gap-2 text-lg font-semibold text-white">
-              {currency || 'Select'}
-              <ChevronDown size={20} className="text-[#9ca3af]" />
+            <div className="flex items-center gap-1.5 text-base font-semibold text-white sm:gap-2 sm:text-lg">
+              <span className="truncate">{currency || 'Select'}</span>
+              <ChevronDown size={18} className="text-[#9ca3af] sm:size-5" />
             </div>
           </PopoverTrigger>
           <PopoverContent
             sideOffset={8}
             align="start"
-            className="w-[240px] overflow-hidden rounded-xl border border-[#343c51] bg-[#1a1e2e] p-1 text-white"
+            className="w-[min(240px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-[#343c51] bg-[#1a1e2e] p-1 text-white"
           >
             <Command className="h-[260px] bg-transparent text-white">
               <CommandInput
@@ -127,7 +127,7 @@ export default function CurrencyInput({
             <input
               type="text"
               inputMode="decimal"
-              className="w-full appearance-none bg-transparent p-0 text-right text-[34px] font-medium leading-tight text-white placeholder:text-[#4b5563] read-only:text-[#c7cedd] focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              className="w-full appearance-none bg-transparent p-0 text-right text-[28px] font-medium leading-tight text-white placeholder:text-[#4b5563] read-only:text-[#c7cedd] focus:outline-none sm:text-[34px] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               placeholder="0"
               value={displayAmount}
               readOnly={readOnly}

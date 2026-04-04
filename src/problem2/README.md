@@ -26,6 +26,9 @@ This folder contains a quote-only currency swap interface built with Vite, React
   - icon load
   - quote refresh
 - Searchable currency dropdown
+- Responsive input layout:
+  - mobile: currency row and amount row are stacked on 2 lines
+  - desktop: currency and amount are shown side by side
 - Middle switch button for currency direction
 - Cosmetic bottom Swap action:
   - click `Swap`
