@@ -278,6 +278,7 @@ export default function SwapForm() {
               onAmountChange={() => {}}
               onCurrencyChange={handleReceiveCurrencyChange}
               options={currencies}
+              usdValue={payUsdValue}
               isAmountLoading={isQuoteRefreshing || pricesFetching}
               readOnly
             />
