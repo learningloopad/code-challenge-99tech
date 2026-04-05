@@ -3,10 +3,12 @@ import { ArrowDownUp, CheckCircle2, Loader2 } from 'lucide-react';
 import CurrencyInput from '../../components/CurrencyInput';
 import { Skeleton } from '../../components/ui/skeleton';
 import { useFetchPrices } from './api/queries';
-
-const MAX_INPUT_AMOUNT = 1_000_000_000_000;
-const MAX_INPUT_DECIMALS = 6;
-const AMOUNT_FORMAT = /^\d*\.?\d*$/;
+import {
+  formatUsdValue,
+  getReceiveAmount,
+  getUsdNotional,
+  getValidatedPayAmount,
+} from './lib/utils';
 
 export default function SwapForm() {
   const [payAmount, setPayAmount] = useState('');
@@ -14,8 +16,6 @@ export default function SwapForm() {
   const [receiveCurrency, setReceiveCurrency] = useState('');
   const [swapButtonRotate, setSwapButtonRotate] = useState(false);
   const [isQuoteRefreshing, setIsQuoteRefreshing] = useState(false);
-  const [hasInitializedCurrencies, setHasInitializedCurrencies] =
-    useState(false);
   const [swapActionState, setSwapActionState] = useState<
     'idle' | 'loading' | 'success'
   >('idle');
@@ -31,24 +31,9 @@ export default function SwapForm() {
   } = useFetchPrices();
   const currencies = useMemo(() => data?.currencies ?? [], [data?.currencies]);
   const prices = useMemo(() => data?.prices ?? {}, [data?.prices]);
-
-  useEffect(() => {
-    if (hasInitializedCurrencies || currencies.length === 0) {
-      return;
-    }
-
-    setPayCurrency(currencies[0]);
-    setReceiveCurrency(currencies[1] ?? currencies[0]);
-    setHasInitializedCurrencies(true);
-  }, [currencies, hasInitializedCurrencies]);
-
-  const formatUsdValue = (value: number) =>
-    new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value);
+  const resolvedPayCurrency = payCurrency || currencies[0] || '';
+  const resolvedReceiveCurrency =
+    receiveCurrency || currencies[1] || currencies[0] || '';
 
   useEffect(() => {
     if (!payAmount || pricesLoading) {
@@ -85,73 +70,31 @@ export default function SwapForm() {
       setSwapActionState('idle');
     }
 
-    if (nextAmount === '') {
-      setPayAmount('');
+    const validatedAmount = getValidatedPayAmount(nextAmount);
+    if (validatedAmount === null) {
+      return;
+    }
+
+    if (validatedAmount === '') {
       setIsQuoteRefreshing(false);
-      return;
     }
 
-    if (!AMOUNT_FORMAT.test(nextAmount)) {
-      return;
-    }
-
-    const [, decimalPart = ''] = nextAmount.split('.');
-    if (decimalPart.length > MAX_INPUT_DECIMALS) {
-      return;
-    }
-
-    const parsedAmount = Number(nextAmount);
-    if (!Number.isFinite(parsedAmount)) {
-      return;
-    }
-
-    if (parsedAmount > MAX_INPUT_AMOUNT) {
-      setPayAmount(String(MAX_INPUT_AMOUNT));
-      return;
-    }
-
-    setPayAmount(nextAmount);
+    setPayAmount(validatedAmount);
   };
 
-  const receiveAmount = (() => {
-    const parsedPayAmount = Number(payAmount);
-    const payPrice = prices[payCurrency];
-    const receivePrice = prices[receiveCurrency];
+  const receiveAmount = getReceiveAmount(
+    payAmount,
+    resolvedPayCurrency,
+    resolvedReceiveCurrency,
+    prices,
+  );
 
-    if (
-      !Number.isFinite(parsedPayAmount) ||
-      parsedPayAmount <= 0 ||
-      !Number.isFinite(payPrice) ||
-      !Number.isFinite(receivePrice) ||
-      receivePrice <= 0
-    ) {
-      return '';
-    }
-
-    const calculatedAmount = (parsedPayAmount * payPrice) / receivePrice;
-    return Number.isFinite(calculatedAmount)
-      ? calculatedAmount.toFixed(6).replace(/\.?0+$/, '')
-      : '';
-  })();
-
-  const payUsdValue = (() => {
-    const parsedPayAmount = Number(payAmount);
-    const payPrice = prices[payCurrency];
-
-    if (
-      !Number.isFinite(parsedPayAmount) ||
-      parsedPayAmount <= 0 ||
-      !Number.isFinite(payPrice)
-    ) {
-      return '$0';
-    }
-
-    return formatUsdValue(parsedPayAmount * payPrice);
-  })();
+  const usdNotional = getUsdNotional(payAmount, resolvedPayCurrency, prices);
+  const usdValue = usdNotional === null ? '$0' : formatUsdValue(usdNotional);
 
   const handleSwap = () => {
-    setPayCurrency(receiveCurrency);
-    setReceiveCurrency(payCurrency);
+    setPayCurrency(resolvedReceiveCurrency);
+    setReceiveCurrency(resolvedPayCurrency);
     setPayAmount('');
     setSwapButtonRotate((prev) => !prev);
   };
@@ -161,7 +104,7 @@ export default function SwapForm() {
       setSwapActionState('idle');
     }
 
-    if (nextCurrency === receiveCurrency) {
+    if (nextCurrency === resolvedReceiveCurrency) {
       handleSwap();
       return;
     }
@@ -173,7 +116,7 @@ export default function SwapForm() {
       setSwapActionState('idle');
     }
 
-    if (nextCurrency === payCurrency) {
+    if (nextCurrency === resolvedPayCurrency) {
       handleSwap();
       return;
     }
@@ -185,8 +128,8 @@ export default function SwapForm() {
     !pricesError &&
     swapActionState !== 'loading' &&
     Number(payAmount) > 0 &&
-    Boolean(payCurrency) &&
-    Boolean(receiveCurrency);
+    Boolean(resolvedPayCurrency) &&
+    Boolean(resolvedReceiveCurrency);
 
   const handleSubmitSwap = () => {
     if (!canSubmitSwap) {
@@ -246,11 +189,11 @@ export default function SwapForm() {
           <div className="relative">
             <CurrencyInput
               amount={payAmount}
-              currency={payCurrency}
+              currency={resolvedPayCurrency}
               onAmountChange={handlePayAmountChange}
               onCurrencyChange={handlePayCurrencyChange}
               options={currencies}
-              usdValue={payUsdValue}
+              usdValue={usdValue}
             />
 
             <div className="absolute bottom-0 left-1/2 z-10 -translate-x-1/2 translate-y-1/2">
@@ -274,11 +217,11 @@ export default function SwapForm() {
           <div className="mt-1">
             <CurrencyInput
               amount={receiveAmount}
-              currency={receiveCurrency}
+              currency={resolvedReceiveCurrency}
               onAmountChange={() => {}}
               onCurrencyChange={handleReceiveCurrencyChange}
               options={currencies}
-              usdValue={payUsdValue}
+              usdValue={usdValue}
               isAmountLoading={isQuoteRefreshing || pricesFetching}
               readOnly
             />
