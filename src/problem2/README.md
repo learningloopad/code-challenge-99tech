@@ -65,12 +65,12 @@ npm run dev
 ```bash
 # pnpm
 pnpm build
-pnpm exec eslint .
+pnpm lint
 pnpm format:check
 
 # npm
 npm run build
-npx eslint .
+npm run lint
 npm run format:check
 ```
 
