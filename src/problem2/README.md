@@ -21,6 +21,7 @@ This folder contains a quote-only currency swap interface built with Vite, React
   - decimal precision limit
   - max input cap
 - Debounced quote refresh when pay amount changes
+  - note: we intentionally trigger price refetch on input changes even though data is sourced from a JSON endpoint, to simulate real swap behavior
 - Loading skeletons for:
   - initial prices load
   - icon load
@@ -79,7 +80,7 @@ npm run format:check
   - Decision: use query hooks for prices/icons to manage caching, loading, and refetch states.
   - Trade-off: adds a dependency but keeps async UI logic predictable.
 - Debounced quote refresh:
-  - Decision: use `setTimeout`-based debounce on pay amount changes to reduce API chatter.
+  - Decision: use `setTimeout`-based debounce on pay amount changes to reduce API chatter, while still refetching prices to mimic a production swap flow where quotes are refreshed as users type.
   - Trade-off: quote updates are slightly delayed by design.
 - Generated UI primitives (shadcn/base-ui):
   - Decision: use generated components for consistent styling and interaction patterns.
